@@ -5,6 +5,12 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { db } from "@/server/db";
+import { createClient } from "@deepgram/sdk";
+import {
+  Configuration,
+  OpenAIApi,
+  type ChatCompletionRequestMessage,
+} from "openai-edge";
 
 import { studentResume } from "@/server/db/schema";
 import {
@@ -16,27 +22,11 @@ import {
   interviewThreeQuestion,
 } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
-import { boss } from "@/lib/pgboss-register-email";
 import { env } from "@/env";
-import {
-  sendInterviewCompletedEmail,
-  sendInterviewFailedEmail,
-  sendSubmitInterviewEmail,
-  sendInterviewViolatedEmail,
-} from "@/lib/send-interview-emails";
-
-import emailTransport from "@/lib/email-transport";
 import { eq, and, notInArray, asc, sql, count, desc } from "drizzle-orm";
-import type { AxiosError } from "axios";
-import axios from "axios";
-import { createClient } from "@deepgram/sdk";
-import {
-  Configuration,
-  OpenAIApi,
-  type ChatCompletionRequestMessage,
-} from "openai-edge";
+
 import { observable } from "@trpc/server/observable";
-import { Deepgram } from "@deepgram/sdk";
+
 import { addHours, addMinutes } from "date-fns";
 
 const deepgram = createClient(env.DEEPGRAM_API_KEY);

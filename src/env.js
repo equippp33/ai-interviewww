@@ -11,6 +11,11 @@ export const env = createEnv({
 		NODE_ENV: z
 			.enum(["development", "test", "production"])
 			.default("development"),
+		CLOUDFLARE_R2_ACCESS_KEY_ID: z.string(),
+		CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string(),
+		CLOUDFLARE_R2_ENDPOINT: z.string(),
+		DEEPGRAM_API_KEY: z.string(),
+		OPENAI_API_KEY: z.string(),
 	},
 
 	/**
@@ -29,6 +34,12 @@ export const env = createEnv({
 	runtimeEnv: {
 		DATABASE_URL: process.env.DATABASE_URL,
 		NODE_ENV: process.env.NODE_ENV,
+		CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+		CLOUDFLARE_R2_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+		CLOUDFLARE_R2_ENDPOINT: process.env.CLOUDFLARE_R2_ENDPOINT,
+		DEEPGRAM_API_KEY: process.env.DEEPGRAM_API_KEY,
+		OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+	
 		// NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 	},
 	/**

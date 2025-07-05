@@ -6,13 +6,11 @@ import {
   pgTableCreator,
   timestamp,
   uuid,
-  varchar,
   pgEnum,
   text,
   decimal,
   index,
   integer,
-  boolean,
   json,
 } from "drizzle-orm/pg-core";
 
@@ -99,7 +97,7 @@ export const studentInterviewSubmission = createTable(
 		.default(sql`gen_random_uuid()`),
 	  studentId: uuid("student_id")
 		.notNull()
-		.references(() => userTable.id),
+		.references(() => interviews.id),
 	  interviewId: uuid("interview_id").references(() => interviews.id),
 	  score: decimal("score").default("0"),
 	  percentage: integer("percentage").default(0),
@@ -268,6 +266,50 @@ export const studentInterviewSubmission = createTable(
 	updatedAt: timestamp("updated_at", { withTimezone: true }),
   
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  });
+
+export const candidateApplications = createTable("candidate_applications", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  candidateId: uuid("candidate_id").notNull().references(() => userTable.id),
+  jobId: text("job_id").notNull(), // References the main application's job ID
+  
+  // Personal Details
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phoneNumber: text("phone_number"),
+  dob: text("dob"),
+  gender: text("gender"),
+  maritalStatus: text("marital_status"),
+  nationality: text("nationality"),
+  location: text("location"),
+  photo: text("photo"),
+  bio: text("bio"),
+  linkedinUrl: text("linkedin_url"),
+
+  // Education Details
+  highestDegree: text("highest_degree"),
+  universityName: text("university_name"),
+  specialization: text("specialization"),
+  percentage: text("percentage"),
+  graduationYear: text("graduation_year"),
+
+  // Professional Details
+  totalExperience: text("total_experience"),
+  currentCTC: text("current_ctc"),
+  expectedCTC: text("expected_ctc"),
+  technicalSkills: text("technical_skills"),
+  languages: text("languages"),
+  resume: text("resume"),
+
+  // Job Details
+  jobTitle: text("job_title"),
+  jobDescription: text("job_description"),
+  jobLocation: text("job_location"),
+  companyName: text("company_name"),
+  skillsRequired: text("skills_required"),
+
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   });
 
   
