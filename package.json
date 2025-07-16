@@ -18,6 +18,8 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.846.0",
+		"@aws-sdk/s3-request-presigner": "^3.846.0",
 		"@deepgram/sdk": "^4.7.0",
 		"@lucia-auth/adapter-drizzle": "^1.1.0",
 		"@node-rs/argon2": "^2.0.2",
@@ -35,11 +37,13 @@
 		"drizzle-orm": "^0.41.0",
 		"lucia": "^3.2.2",
 		"lucide-react": "^0.523.0",
+		"nanoid": "^5.1.5",
 		"next": "^15.2.3",
 		"next-auth": "^4.24.11",
 		"next-themes": "^0.4.6",
 		"openai-edge": "^1.2.3",
 		"postgres": "^3.4.4",
+		"rate-limiter-flexible": "^7.1.1",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"react-hook-form": "^7.58.1",
@@ -48,6 +52,7 @@
 		"superjson": "^2.2.1",
 		"tailwind-merge": "^3.3.1",
 		"tailwindcss-animate": "^1.0.7",
+		"ts-retry-promise": "^0.8.1",
 		"uuid": "^11.1.0",
 		"zod": "^3.24.2"
 	},

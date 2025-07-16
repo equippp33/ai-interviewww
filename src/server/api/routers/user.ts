@@ -7,6 +7,14 @@ import { cookies } from "next/headers";
 import { hash, verify } from "@node-rs/argon2";
 import { db } from "@/server/db";
 import { Cookie } from "lucia";
+import { nanoid } from "nanoid";
+import { env } from "@/env";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import {
+    S3Client,
+    PutObjectCommand,
+    DeleteObjectCommand,
+  } from "@aws-sdk/client-s3";
 
 
 
@@ -180,5 +188,54 @@ export const userRouter = createTRPCRouter({
     
         return {};
       }),
+
+      getUploadURL: publicProcedure
+    .input(
+      z.object({
+        folderName: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const id = nanoid();
+
+        const folderName = input.folderName;
+        const contentType = "application/pdf";
+
+        if (!folderName) {
+          return { success: false, error: "No folder name provided" };
+        }
+
+        const S3 = new S3Client({
+          region: "auto",
+          endpoint: env.CLOUDFLARE_R2_ENDPOINT ?? "",
+          credentials: {
+            accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID ?? "",
+            secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY ?? "",
+          },
+        });
+
+        const uploadUrl = await getSignedUrl(
+          S3,
+          new PutObjectCommand({
+            Bucket: "3-0-images",
+            Key: `${folderName}/${id}`,
+            ContentType: contentType,
+          }),
+          { expiresIn: 3600 },
+        );
+
+        return {
+          success: true,
+          uploadParams: uploadUrl,
+          id: id,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: `Failed to upload to R2 : ${error as string}`,
+        };
+      }
+    }),
 
 });

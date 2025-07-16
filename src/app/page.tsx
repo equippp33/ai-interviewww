@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { api } from "@/trpc/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 interface SignUpFormValues {
@@ -19,6 +19,38 @@ export default function Login() {
   } = useForm<SignUpFormValues>();
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [pendingUser, setPendingUser] = useState<null | { id: string }>(null);
+  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
+  const [appError, setAppError] = useState<string | null>(null);
+  const {
+    data: applications,
+    isLoading: isAppLoading,
+    refetch: refetchApplications,
+  } = api.interview.getCandidateApplicationsByUser.useQuery(
+    pendingUser ? { candidateId: pendingUser.id } : { candidateId: "" },
+    { enabled: false }
+  );
+
+  useEffect(() => {
+    if (pendingUser && pendingSessionId) {
+      refetchApplications();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingUser, pendingSessionId]);
+
+  useEffect(() => {
+    if (applications && applications.length > 0 && pendingUser && pendingSessionId) {
+      const app = applications[0];
+      if (app && app.jobId && app.id) {
+        router.push(`/interview/${app.jobId}/${app.id}/${pendingSessionId}`);
+      } else {
+        setAppError("Application data is incomplete.");
+      }
+    } else if (applications && applications.length === 0 && pendingUser && pendingSessionId) {
+      setAppError("No candidate application found for this user.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applications, pendingUser, pendingSessionId]);
 
   const { mutate, isPending } = api.user.login.useMutation({
     onSuccess: ({ user }) => {
@@ -26,9 +58,10 @@ export default function Login() {
         if (user.role === "admin") {
           router.push("/landing");
         } else {
+          setAppError(null);
           const sessionId = uuidv4();
-          const interviewId = "default-interview-id"; // Replace with your actual interview ID
-          router.push(`/interview/${interviewId}/${user.id}/${sessionId}`);
+          setPendingUser({ id: user.id });
+          setPendingSessionId(sessionId);
         }
       }
     },
@@ -55,6 +88,11 @@ export default function Login() {
         {loginError && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
             {loginError}
+          </div>
+        )}
+        {appError && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            {appError}
           </div>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -114,9 +152,9 @@ export default function Login() {
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-700 to-purple-600 hover:from-purple-600 hover:to-blue-700 transition text-white py-2 rounded-lg font-semibold shadow-md flex items-center justify-center gap-2"
-            disabled={isPending}
+            disabled={isPending || isAppLoading}
           >
-            {isPending ? (
+            {(isPending || isAppLoading) ? (
               <span className="flex items-center gap-2">
                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span> 
                 Signing In...
