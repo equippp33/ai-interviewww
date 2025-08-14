@@ -12,6 +12,7 @@ import {
   index,
   integer,
   json,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -311,5 +312,34 @@ export const candidateApplications = createTable("candidate_applications", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   });
+
+  export const studentInterviewMails = createTable("student_interview_mails", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  fullName: text("full_name"),
+  studentEmail: text("student_email"),
+  phoneNumber: text("phone_number"),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  collegeName: text("college_name"),
+  subject: text("subject"),
+  equipppId: text("equippp_id"),
+  emailTrackingId: text("email_tracking_id"),
+  interviewId: uuid("interview_id").references(() => interviews.id),
+  isSubmitted: text("is_submitted").default("false"),
+  violation: text("violation").default("false"),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  isCompleted: text("is_completed").default("false"),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  isEmailSent: text("is_email_sent").default("pending"),
+  emailSentAt: timestamp("email_sent_at", { withTimezone: true }),
+  isEmailRead: boolean("is_email_read").default(false),
+  emailReadedAt: timestamp("email_readed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 
   

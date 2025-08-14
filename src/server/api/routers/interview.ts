@@ -15,6 +15,7 @@ import { env } from "@/env";
 import { eq, and, notInArray, asc, sql, count, desc } from "drizzle-orm";
 import { retry } from "ts-retry-promise";
 import { RateLimiterMemory } from "rate-limiter-flexible";
+import { addHours } from "date-fns";
 
 const deepgram = createClient(env.DEEPGRAM_API_KEY);
 const config = new Configuration({ apiKey: env.OPENAI_API_KEY });
@@ -140,6 +141,15 @@ export const interviewRouter = createTRPCRouter({
       phoneNumber: z.string(),
       collegeName: z.string(),
       yearOfPassing: z.string(),
+      technicalSkills: z.string(),
+      languages: z.string(),
+      resume: z.string(),
+      jobTitle: z.string(),
+      jobDescription: z.string(),
+      jobLocation: z.string(),
+      companyName: z.string(),
+      skillsRequired: z.array(z.string()),
+      degree: z.string(),
       rollno: z.string(),
       stream: z.string(),
       videoUrl: z.string(),
@@ -716,4 +726,55 @@ export const interviewRouter = createTRPCRouter({
       }
       return application;
     }),
+
+  updateViolation: publicProcedure
+    .input(
+      z.object({
+        interviewId: z.string(),
+        userId: z.string(),
+        sessionId: z.string(),
+        phoneNumber: z.string(),
+        collegeName: z.string(),
+        yearOfPassing: z.string(),
+        rollno: z.string(),
+        stream: z.string(),
+        email: z.string(),
+        fullName: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const nextAttemptTime = addHours(new Date(), 2);
+
+      // Insert new row with violation status
+      await ctx.db.insert(studentInterviewSubmission).values({
+        studentId: input.userId,
+        interviewId: input.interviewId,
+        sessionId: input.sessionId,
+        status: "violated",
+        nextAttemptTime,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // Send violation email
+      await sendInterviewViolatedEmail({
+        email: input.email,
+        studentId: input.userId,
+        fullName: input.fullName,
+        interviewId: input.interviewId,
+        phoneNumber: input.phoneNumber,
+        collegeName: input.collegeName,
+        yearOfPassing: input.yearOfPassing,
+        rollno: input.rollno,
+        stream: input.stream,
+        nextAttemptTime,
+      });
+
+      return { success: true };
+    }),
+
 });
+function sendInterviewViolatedEmail(arg0: { email: string; studentId: string; fullName: string; interviewId: string; phoneNumber: string; collegeName: string; yearOfPassing: string; rollno: string; stream: string; nextAttemptTime: Date; }) {
+  throw new Error("Function not implemented.");
+}
+
