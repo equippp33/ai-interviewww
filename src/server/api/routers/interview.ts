@@ -57,28 +57,32 @@ const rateLimitMiddleware = async ({ ctx, next }: any) => {
 
 export const interviewRouter = createTRPCRouter({
   getInterview: publicProcedure
-    .input(z.object({ interviewId: z.string(), id: z.string() }))
+    .input(z.object({ jobId: z.string(), id: z.string() }))
     .query(async ({ input }) => {
-      const [interview, student, student_resume] = await Promise.all([
-        db.query.interviews.findFirst({ where: eq(interviews.id, input.interviewId) }),
-        db.query.studentDetails.findFirst({ where: eq(studentDetails.userId, input.id) }),
-        db.query.studentResume.findFirst({ where: eq(studentResume.userId, input.id) }),
-      ]);
+      const student = await db.query.candidateApplications.
+        findFirst({
+          where: and(
+            eq(candidateApplications.id, input.id),
+            eq(candidateApplications.jobId, input.jobId))
+        })
 
-      const fullName = student ? (student.lastName ? `${student.firstName} ${student.lastName}` : student.firstName) : null;
+
+      if (!student) {
+        throw new Error("Candidate application not found");
+      }
+
+      const fullName = student?.name;
+
       return {
-        ...interview,
-        fullName,
-        resume: student_resume?.resume,
-        primarySpecialization: student?.primarySpecialization,
-        degree: student?.degree,
+        name: fullName,
+        resume: student.resume,
+        primarySpecialization: student.specialization,
+        degree: student.highestDegree,
         email: student?.email,
         profilePicture: student?.photo,
         phoneNumber: student?.phoneNumber,
-        collegeName: student?.college,
-        yearOfPassing: student?.yearOfPassing,
-        rollno: student?.rollno,
-        stream: student?.stream,
+        collegeName: student.universityName,
+        yearOfPassing: student.graduationYear,
       };
     }),
 
@@ -150,8 +154,8 @@ export const interviewRouter = createTRPCRouter({
       companyName: z.string(),
       skillsRequired: z.array(z.string()),
       degree: z.string(),
-      rollno: z.string(),
-      stream: z.string(),
+      // rollno: z.string(),
+      // stream: z.string(),
       videoUrl: z.string(),
       email: z.string(),
       previousQuestions: z.array(z.object({ question: z.string(), topic: z.string(), answer: z.string() })),

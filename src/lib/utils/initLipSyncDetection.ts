@@ -1,4 +1,4 @@
-import { FaceMesh, Results } from "@mediapipe/face_mesh";
+import { FaceMesh, type Results } from "@mediapipe/face_mesh";
 import { Camera } from "@mediapipe/camera_utils";
 
 export function initLipSyncDetection(

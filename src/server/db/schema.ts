@@ -3,16 +3,17 @@
 
 import { sql } from "drizzle-orm";
 import {
-  pgTableCreator,
-  timestamp,
-  uuid,
-  pgEnum,
-  text,
-  decimal,
-  index,
-  integer,
-  json,
-  boolean,
+	pgTableCreator,
+	timestamp,
+	uuid,
+	varchar,
+	pgEnum,
+	text,
+	decimal,
+	index,
+	integer,
+	boolean,
+	json,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -25,169 +26,168 @@ export const createTable = pgTableCreator((name) => `ai_interview_${name}`);
 
 // Reference to the main database's user table
 export const mainUserReference = {
-  mainUserId: uuid("main_user_id").notNull(),
-  mainUserEmail: text("main_user_email"),
-  mainUserPhone: text("main_user_phone"),
+	mainUserId: uuid("main_user_id").notNull(),
+	mainUserEmail: text("main_user_email"),
+	mainUserPhone: text("main_user_phone"),
 };
 
 export const userTable = createTable("users", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull(),
-  password: text("password").notNull(),
-  role: text("role").default("candidate"),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+	id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+	email: text("email").notNull(),
+	password: text("password").notNull(),
+	role: text("role").default("candidate"),
+	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const sessionsTable = createTable("sessions", {
-  id: text("id").primaryKey(),
-  userId: uuid("user_id").notNull().references(() => userTable.id),
-  expiresAt: timestamp("expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }).notNull(),
+	id: text("id").primaryKey(),
+	userId: uuid("user_id").notNull().references(() => userTable.id),
+	expiresAt: timestamp("expires_at", {
+		withTimezone: true,
+		mode: "date",
+	}).notNull(),
 });
 
 // Enum for interview status
-export const interviewStatusEnum = pgEnum("interview_status", [
-  "not_started",
-  "in_progress",
-  "completed",
-  "failed",
-  "expired"
-]);
+// export const interviewStatusEnum = pgEnum("interview_status", [
+//   "not_started",
+//   "in_progress",
+//   "completed",
+//   "failed",
+//   "expired"
+// ]);
 
 export const aiInterviews = createTable("ai_interview_interviews", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  candidateId: uuid("candidate_id").notNull().references(() => userTable.id),
-  jobId: text("job_id").notNull(), // References the main application's job ID
-  status: interviewStatusEnum("status").default("not_started"),
-  startedAt: timestamp("started_at", { withTimezone: true }),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-  score: decimal("score"),
-  confidence: decimal("confidence"),
-  recordingUrl: text("recording_url"),
-  transcriptUrl: text("transcript_url"),
-  feedback: text("feedback"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+	id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+	candidateId: uuid("candidate_id").notNull().references(() => userTable.id),
+	jobId: text("job_id").notNull(), // References the main application's job ID
+	status: text("status").default("not_started"),
+	startedAt: timestamp("started_at", { withTimezone: true }),
+	completedAt: timestamp("completed_at", { withTimezone: true }),
+	score: decimal("score"),
+	confidence: decimal("confidence"),
+	recordingUrl: text("recording_url"),
+	transcriptUrl: text("transcript_url"),
+	feedback: text("feedback"),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const aiQuestions = createTable("questions", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  interviewId: uuid("interview_id").notNull().references(() => aiInterviews.id),
-  questionText: text("question_text").notNull(),
-  answer: text("answer"),
-  score: decimal("score"),
-  feedback: text("feedback"),
-  audioUrl: text("audio_url"),
-  transcriptUrl: text("transcript_url"),
-  aiAnalysis: json("ai_analysis"), // Stores detailed AI analysis of the answer
-  askedAt: timestamp("asked_at", { withTimezone: true }),
-  answeredAt: timestamp("answered_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+	id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+	interviewId: uuid("interview_id").notNull().references(() => aiInterviews.id),
+	questionText: text("question_text").notNull(),
+	answer: text("answer"),
+	score: decimal("score"),
+	feedback: text("feedback"),
+	audioUrl: text("audio_url"),
+	transcriptUrl: text("transcript_url"),
+	aiAnalysis: json("ai_analysis"), // Stores detailed AI analysis of the answer
+	askedAt: timestamp("asked_at", { withTimezone: true }),
+	answeredAt: timestamp("answered_at", { withTimezone: true }),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const studentInterviewSubmission = createTable(
 	"student_interview_submission",
 	{
-	  id: uuid("id")
+		id: uuid("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
+		studentId: uuid("student_id")
+			.notNull(),
+		interviewId: uuid("interview_id"),
+		score: decimal("score").default("0"),
+		percentage: integer("percentage").default(0),
+		status: text("status").notNull().default("not_started"),
+		reportLink: text("report_link"),
+		errorDetails: text("error_details"),
+		interViewLink: text("interview_link"),
+		courseImpact: text("courseImpact"),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+		sessionId: text("session_id"),
+		nextAttemptTime: timestamp("next_attempt_time", { withTimezone: true }),
+		previousQuestions: text("previous_questions"),
+
+		JD_text: text("JD_text"),
+		resumeText: text("resume_text"),
+		JD_topics: text("JD_topics"),
+	},
+);
+
+export const interviewOneQuestion = createTable("interview_one_question", {
+	id: uuid("id")
 		.primaryKey()
 		.default(sql`gen_random_uuid()`),
-	  studentId: uuid("student_id")
-		.notNull()
-		.references(() => interviews.id),
-	  interviewId: uuid("interview_id").references(() => interviews.id),
-	  score: decimal("score").default("0"),
-	  percentage: integer("percentage").default(0),
-	  status: text("status").notNull().default("not_started"),
-	  reportLink: text("report_link"),
-	  errorDetails: text("error_details"),
-	  interViewLink: text("interview_link"),
-	  courseImpact: text("courseImpact"),
-	  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-	  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-	  sessionId: text("session_id"),
-	  nextAttemptTime: timestamp("next_attempt_time", { withTimezone: true }),
-	  previousQuestions: text("previous_questions"),
-  
-	  JD_text: text("JD_text"),
-	  resumeText: text("resume_text"),
-	  JD_topics: text("JD_topics"),
-	},
-  );
-  
-  export const interviewOneQuestion = createTable("interview_one_question", {
-	id: uuid("id")
-	  .primaryKey()
-	  .default(sql`gen_random_uuid()`),
 	question: text("question").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  });
-  
-  export const interviewTwoQuestion = createTable("interview_two_question", {
-	id: uuid("id")
-	  .primaryKey()
-	  .default(sql`gen_random_uuid()`),
-	question: text("question").notNull(),
-  
-	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  });
-  
-  export const interviewThreeQuestion = createTable("interview_three_question", {
-	id: uuid("id")
-	  .primaryKey()
-	  .default(sql`gen_random_uuid()`),
-	question: text("question").notNull(),
-  
-	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  });
-  
+});
 
-  export const studentResume = createTable(
+export const interviewTwoQuestion = createTable("interview_two_question", {
+	id: uuid("id")
+		.primaryKey()
+		.default(sql`gen_random_uuid()`),
+	question: text("question").notNull(),
+
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const interviewThreeQuestion = createTable("interview_three_question", {
+	id: uuid("id")
+		.primaryKey()
+		.default(sql`gen_random_uuid()`),
+	question: text("question").notNull(),
+
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+
+export const studentResume = createTable(
 	"student_resume",
 	{
-	  id: uuid("id")
-		.primaryKey()
-		.default(sql`gen_random_uuid()`),
-	  userId: uuid("user_id")
-		.notNull()
-		.references(() => userTable.id)
-		.unique(),
-	  resume: text("resume"),
-	  video: text("video"),
+		id: uuid("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => userTable.id)
+			.unique(),
+		resume: text("resume"),
+		video: text("video"),
 	},
 	(example) => ({
-	  resumeIndex: index("resume_idx").on(example.resume),
-	  resumeUserIdIndex: index("resume_user_id_idx").on(example.userId),
+		resumeIndex: index("resume_idx").on(example.resume),
+		resumeUserIdIndex: index("resume_user_id_idx").on(example.userId),
 	}),
-  );
+);
 
 
-  export const interviews = createTable("interviews", {
+export const interviews = createTable("interviews", {
 	id: uuid("id")
-	  .primaryKey()
-	  .default(sql`gen_random_uuid()`),
+		.primaryKey()
+		.default(sql`gen_random_uuid()`),
 	name: text("name").notNull(),
 	link: text("link").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  });
+});
 
-  
-  export const studentDetails = createTable("student_details", {
+
+export const studentDetails = createTable("student_details", {
 	id: uuid("id")
-	  .primaryKey()
-	  .default(sql`gen_random_uuid()`),
+		.primaryKey()
+		.default(sql`gen_random_uuid()`),
 	userId: uuid("user_id")
-	  .notNull()
-	  .unique()
-	  .references(() => userTable.id),
+		.notNull()
+		.unique()
+		.references(() => userTable.id),
 	isSkillUniversity: text("is_Skill_University"),
 	universityName: text("university_Name"),
 	equipppId: text("equippp_id"),
@@ -265,81 +265,79 @@ export const studentInterviewSubmission = createTable(
 	degreeMarkSheet: text("degree_marksheet"),
 	additionalCertifications: text("additional_certifications"),
 	updatedAt: timestamp("updated_at", { withTimezone: true }),
-  
+
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  });
+});
 
 export const candidateApplications = createTable("candidate_applications", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  candidateId: uuid("candidate_id").notNull().references(() => userTable.id),
-  jobId: text("job_id").notNull(), // References the main application's job ID
-  
-  // Personal Details
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phoneNumber: text("phone_number"),
-  dob: text("dob"),
-  gender: text("gender"),
-  maritalStatus: text("marital_status"),
-  nationality: text("nationality"),
-  location: text("location"),
-  photo: text("photo"),
-  bio: text("bio"),
-  linkedinUrl: text("linkedin_url"),
+	id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+	candidateId: uuid("candidate_id").notNull().references(() => userTable.id),
+	jobId: text("job_id").notNull(), // References the main application's job ID
 
-  // Education Details
-  highestDegree: text("highest_degree"),
-  universityName: text("university_name"),
-  specialization: text("specialization"),
-  percentage: text("percentage"),
-  graduationYear: text("graduation_year"),
+	// Personal Details
+	name: text("name").notNull(),
+	email: text("email").notNull(),
+	phoneNumber: text("phone_number"),
+	dob: text("dob"),
+	gender: text("gender"),
+	maritalStatus: text("marital_status"),
+	nationality: text("nationality"),
+	location: text("location"),
+	photo: text("photo"),
+	bio: text("bio"),
+	linkedinUrl: text("linkedin_url"),
 
-  // Professional Details
-  totalExperience: text("total_experience"),
-  currentCTC: text("current_ctc"),
-  expectedCTC: text("expected_ctc"),
-  technicalSkills: text("technical_skills"),
-  languages: text("languages"),
-  resume: text("resume"),
+	// Education Details
+	highestDegree: text("highest_degree"),
+	universityName: text("university_name"),
+	specialization: text("specialization"),
+	percentage: text("percentage"),
+	graduationYear: text("graduation_year"),
 
-  // Job Details
-  jobTitle: text("job_title"),
-  jobDescription: text("job_description"),
-  jobLocation: text("job_location"),
-  companyName: text("company_name"),
-  skillsRequired: text("skills_required"),
+	// Professional Details
+	totalExperience: text("total_experience"),
+	currentCTC: text("current_ctc"),
+	expectedCTC: text("expected_ctc"),
+	technicalSkills: text("technical_skills"),
+	languages: text("languages"),
+	resume: text("resume"),
 
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  });
+	// Job Details
+	jobTitle: text("job_title"),
+	jobDescription: text("job_description"),
+	jobLocation: text("job_location"),
+	companyName: text("company_name"),
+	skillsRequired: text("skills_required"),
 
-  export const studentInterviewMails = createTable("student_interview_mails", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  fullName: text("full_name"),
-  studentEmail: text("student_email"),
-  phoneNumber: text("phone_number"),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => userTable.id),
-  collegeName: text("college_name"),
-  subject: text("subject"),
-  equipppId: text("equippp_id"),
-  emailTrackingId: text("email_tracking_id"),
-  interviewId: uuid("interview_id").references(() => interviews.id),
-  isSubmitted: text("is_submitted").default("false"),
-  violation: text("violation").default("false"),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }),
-  isCompleted: text("is_completed").default("false"),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-  isEmailSent: text("is_email_sent").default("pending"),
-  emailSentAt: timestamp("email_sent_at", { withTimezone: true }),
-  isEmailRead: boolean("is_email_read").default(false),
-  emailReadedAt: timestamp("email_readed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 
-  
+export const studentInterviewMails = createTable("student_interview_mails", {
+	id: uuid("id")
+		.primaryKey()
+		.default(sql`gen_random_uuid()`),
+	fullName: text("full_name"),
+	studentEmail: text("student_email"),
+	phoneNumber: text("phone_number"),
+	userId: uuid("user_id")
+		.notNull(),
+	collegeName: text("college_name"),
+	subject: text("subject"),
+	equipppId: text("equippp_id"),
+	emailTrackingId: text("email_tracking_id"),
+	interviewId: uuid("interview_id"),
+	isSubmitted: text("is_submitted").default("false"),
+	violation: text("violation").default("false"),
+	submittedAt: timestamp("submitted_at", { withTimezone: true }),
+	isCompleted: text("is_completed").default("false"),
+	completedAt: timestamp("completed_at", { withTimezone: true }),
+	isEmailSent: text("is_email_sent").default("pending"),
+	emailSentAt: timestamp("email_sent_at", { withTimezone: true }),
+	isEmailRead: boolean("is_email_read").default(false),
+	emailReadedAt: timestamp("email_readed_at", { withTimezone: true }),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+

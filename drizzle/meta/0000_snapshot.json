@@ -1,11 +1,616 @@
 {
-  "id": "567f04a5-612e-4682-a04c-f6770414d243",
+  "id": "22fc88bb-1fbf-4d2e-9f8b-c9a0e5351b7c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.ai-interviewww_sessions": {
-      "name": "ai-interviewww_sessions",
+    "public.ai_interview_ai_interview_interviews": {
+      "name": "ai_interview_ai_interview_interviews",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "candidate_id": {
+          "name": "candidate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'not_started'"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "score": {
+          "name": "score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recording_url": {
+          "name": "recording_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transcript_url": {
+          "name": "transcript_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ai_interview_ai_interview_interviews_candidate_id_ai_interview_users_id_fk": {
+          "name": "ai_interview_ai_interview_interviews_candidate_id_ai_interview_users_id_fk",
+          "tableFrom": "ai_interview_ai_interview_interviews",
+          "tableTo": "ai_interview_users",
+          "columnsFrom": [
+            "candidate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_questions": {
+      "name": "ai_interview_questions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "interview_id": {
+          "name": "interview_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_text": {
+          "name": "question_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer": {
+          "name": "answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "score": {
+          "name": "score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "audio_url": {
+          "name": "audio_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transcript_url": {
+          "name": "transcript_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ai_analysis": {
+          "name": "ai_analysis",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "asked_at": {
+          "name": "asked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "answered_at": {
+          "name": "answered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ai_interview_questions_interview_id_ai_interview_ai_interview_interviews_id_fk": {
+          "name": "ai_interview_questions_interview_id_ai_interview_ai_interview_interviews_id_fk",
+          "tableFrom": "ai_interview_questions",
+          "tableTo": "ai_interview_ai_interview_interviews",
+          "columnsFrom": [
+            "interview_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_candidate_applications": {
+      "name": "ai_interview_candidate_applications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "candidate_id": {
+          "name": "candidate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dob": {
+          "name": "dob",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "marital_status": {
+          "name": "marital_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nationality": {
+          "name": "nationality",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo": {
+          "name": "photo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linkedin_url": {
+          "name": "linkedin_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "highest_degree": {
+          "name": "highest_degree",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "university_name": {
+          "name": "university_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "specialization": {
+          "name": "specialization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "percentage": {
+          "name": "percentage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "graduation_year": {
+          "name": "graduation_year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_experience": {
+          "name": "total_experience",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_ctc": {
+          "name": "current_ctc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_ctc": {
+          "name": "expected_ctc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "technical_skills": {
+          "name": "technical_skills",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages": {
+          "name": "languages",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resume": {
+          "name": "resume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_title": {
+          "name": "job_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_description": {
+          "name": "job_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_location": {
+          "name": "job_location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "company_name": {
+          "name": "company_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "skills_required": {
+          "name": "skills_required",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ai_interview_candidate_applications_candidate_id_ai_interview_users_id_fk": {
+          "name": "ai_interview_candidate_applications_candidate_id_ai_interview_users_id_fk",
+          "tableFrom": "ai_interview_candidate_applications",
+          "tableTo": "ai_interview_users",
+          "columnsFrom": [
+            "candidate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_interview_one_question": {
+      "name": "ai_interview_interview_one_question",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_interview_three_question": {
+      "name": "ai_interview_interview_three_question",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_interview_two_question": {
+      "name": "ai_interview_interview_two_question",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_interviews": {
+      "name": "ai_interview_interviews",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_sessions": {
+      "name": "ai_interview_sessions",
       "schema": "",
       "columns": {
         "id": {
@@ -29,10 +634,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "ai-interviewww_sessions_user_id_ai-interviewww_users_id_fk": {
-          "name": "ai-interviewww_sessions_user_id_ai-interviewww_users_id_fk",
-          "tableFrom": "ai-interviewww_sessions",
-          "tableTo": "ai-interviewww_users",
+        "ai_interview_sessions_user_id_ai_interview_users_id_fk": {
+          "name": "ai_interview_sessions_user_id_ai_interview_users_id_fk",
+          "tableFrom": "ai_interview_sessions",
+          "tableTo": "ai_interview_users",
           "columnsFrom": [
             "user_id"
           ],
@@ -49,8 +654,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.ai-interviewww_users": {
-      "name": "ai-interviewww_users",
+    "public.ai_interview_student_details": {
+      "name": "ai_interview_student_details",
       "schema": "",
       "columns": {
         "id": {
@@ -60,11 +665,143 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_Skill_University": {
+          "name": "is_Skill_University",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "university_Name": {
+          "name": "university_Name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "equippp_id": {
+          "name": "equippp_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo": {
+          "name": "photo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "other_survey": {
+          "name": "other_survey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cover_photo": {
+          "name": "cover_photo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rollno": {
+          "name": "rollno",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "admission_year": {
+          "name": "admission_year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hobbies": {
+          "name": "hobbies",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "survey": {
+          "name": "survey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_country": {
+          "name": "current_country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college": {
+          "name": "college",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stream": {
+          "name": "stream",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "course_impact": {
+          "name": "course_impact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_specialization": {
+          "name": "primary_specialization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college_type": {
+          "name": "college_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "year_of_passing": {
+          "name": "year_of_passing",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dob": {
+          "name": "dob",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages_proficient": {
+          "name": "languages_proficient",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "email": {
           "name": "email",
@@ -72,18 +809,333 @@
           "primaryKey": false,
           "notNull": false
         },
-        "hashed_password": {
-          "name": "hashed_password",
+        "secondary_email": {
+          "name": "secondary_email",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "category": {
-          "name": "category",
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_phone_number": {
+          "name": "secondary_phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aadhar_card": {
+          "name": "aadhar_card",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pan_card": {
+          "name": "pan_card",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "father_name": {
+          "name": "father_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mother_name": {
+          "name": "mother_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "father_occupation": {
+          "name": "father_occupation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mother_occupation": {
+          "name": "mother_occupation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "annual_income": {
+          "name": "annual_income",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linkedin": {
+          "name": "linkedin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "facebook": {
+          "name": "facebook",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "twitter": {
+          "name": "twitter",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_address__line_1": {
+          "name": "current_address__line_1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_address_line_2": {
+          "name": "current_address_line_2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_address_line_3": {
+          "name": "current_address_line_3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college_state": {
+          "name": "college_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college_city": {
+          "name": "college_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_state": {
+          "name": "current_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_city": {
+          "name": "current_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_type": {
+          "name": "area_type",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'user'"
+          "default": "''"
+        },
+        "area_name": {
+          "name": "area_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "email_attempts": {
+          "name": "email_attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "last_email_sent": {
+          "name": "last_email_sent",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "current_postalcode": {
+          "name": "current_postalcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college_location_coordinates": {
+          "name": "college_location_coordinates",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "college_location_title": {
+          "name": "college_location_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_location_coordinates": {
+          "name": "current_location_coordinates",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_location_title": {
+          "name": "current_location_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_location_coordinates": {
+          "name": "permanent_location_coordinates",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_location_title": {
+          "name": "permanent_location_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_address_line_1": {
+          "name": "permanent_address_line_1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_address_line_2": {
+          "name": "permanent_address_line_2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_address_line_3": {
+          "name": "permanent_address_line_3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_state": {
+          "name": "permanent_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_city": {
+          "name": "permanent_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "batch": {
+          "name": "batch",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_postalcode": {
+          "name": "permanent_postalcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_education": {
+          "name": "primary_education",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_education": {
+          "name": "secondary_education",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_education_board": {
+          "name": "primary_education_board",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree": {
+          "name": "degree",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "course": {
+          "name": "course",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_education_board": {
+          "name": "secondary_education_board",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_education_cgpa": {
+          "name": "primary_education_cgpa",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_education_cgpa": {
+          "name": "secondary_education_cgpa",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree_cgpa": {
+          "name": "degree_cgpa",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_education_marksheet": {
+          "name": "primary_education_marksheet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "year_of_passing_primary_education": {
+          "name": "year_of_passing_primary_education",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "year_of_passing_secondary_education": {
+          "name": "year_of_passing_secondary_education",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_education_marksheet": {
+          "name": "secondary_education_marksheet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree_marksheet": {
+          "name": "degree_marksheet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "additional_certifications": {
+          "name": "additional_certifications",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -94,17 +1146,455 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "ai_interview_student_details_user_id_ai_interview_users_id_fk": {
+          "name": "ai_interview_student_details_user_id_ai_interview_users_id_fk",
+          "tableFrom": "ai_interview_student_details",
+          "tableTo": "ai_interview_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "ai-interviewww_users_email_unique": {
-          "name": "ai-interviewww_users_email_unique",
+        "ai_interview_student_details_user_id_unique": {
+          "name": "ai_interview_student_details_user_id_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "email"
+            "user_id"
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_student_interview_mails": {
+      "name": "ai_interview_student_interview_mails",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "student_email": {
+          "name": "student_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "college_name": {
+          "name": "college_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "equippp_id": {
+          "name": "equippp_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_tracking_id": {
+          "name": "email_tracking_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interview_id": {
+          "name": "interview_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_submitted": {
+          "name": "is_submitted",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'false'"
+        },
+        "violation": {
+          "name": "violation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'false'"
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_completed": {
+          "name": "is_completed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'false'"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_email_sent": {
+          "name": "is_email_sent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "email_sent_at": {
+          "name": "email_sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_email_read": {
+          "name": "is_email_read",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "email_readed_at": {
+          "name": "email_readed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_student_interview_submission": {
+      "name": "ai_interview_student_interview_submission",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interview_id": {
+          "name": "interview_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "score": {
+          "name": "score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "percentage": {
+          "name": "percentage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'not_started'"
+        },
+        "report_link": {
+          "name": "report_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error_details": {
+          "name": "error_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interview_link": {
+          "name": "interview_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "courseImpact": {
+          "name": "courseImpact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "next_attempt_time": {
+          "name": "next_attempt_time",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "previous_questions": {
+          "name": "previous_questions",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "JD_text": {
+          "name": "JD_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resume_text": {
+          "name": "resume_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "JD_topics": {
+          "name": "JD_topics",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_student_resume": {
+      "name": "ai_interview_student_resume",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "resume": {
+          "name": "resume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "video": {
+          "name": "video",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "resume_idx": {
+          "name": "resume_idx",
+          "columns": [
+            {
+              "expression": "resume",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "resume_user_id_idx": {
+          "name": "resume_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ai_interview_student_resume_user_id_ai_interview_users_id_fk": {
+          "name": "ai_interview_student_resume_user_id_ai_interview_users_id_fk",
+          "tableFrom": "ai_interview_student_resume",
+          "tableTo": "ai_interview_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ai_interview_student_resume_user_id_unique": {
+          "name": "ai_interview_student_resume_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_interview_users": {
+      "name": "ai_interview_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'candidate'"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

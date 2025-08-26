@@ -27,7 +27,7 @@ import {
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { Wifi, Battery, Video, UserCircle, ClipboardList } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import InstructionDialog from "@/app/interview/components/instruction";
 
@@ -95,7 +95,7 @@ const InterviewPage = () => {
   );
   const idCheckVideoRef = useRef<HTMLVideoElement>(null);
   const [referenceImageBase64, setReferenceImageBase64] = useState<string | null>(null);
-  const { interviewid, id, session } = useParams();
+  const { jobid, id, session } = useParams();
   const [resumeText, setResumeText] = useState<string | undefined>(undefined);
   const [JD_text, setJD_text] = useState<string | undefined>(undefined);
   const [resumeSummary, setResumeSummary] = useState<string>("");
@@ -161,7 +161,7 @@ const InterviewPage = () => {
   const [previousQuestions, setPreviousQuestions] = useState<{ question: string; topic: string; answer: string }[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const watermarkRef = useRef<HTMLImageElement | null>(null);
-  const [nextQuestionCache, setNextQuestionCache] = useState<{question: string; audio: string;} | null>(null);
+  const [nextQuestionCache, setNextQuestionCache] = useState<{ question: string; audio: string; } | null>(null);
 
   // Add new states for violation tracking
   const [isViolated, setIsViolated] = useState(false);
@@ -342,9 +342,11 @@ const InterviewPage = () => {
 
   const { data: interview, isLoading: isInterviewLoading } =
     api.interview.getInterview.useQuery({
-      interviewId: interviewid as string,
+      jobId: jobid as string,
       id: id as string,
-    });
+    },
+      { enabled: !!jobid && !!id }
+    );
 
   const { mutateAsync: convertImageToBase64 } = api.image.convertToBase64.useMutation();
 
@@ -458,7 +460,7 @@ const InterviewPage = () => {
     setMimeType(getSupportedMimeType());
 
     const eqLogo = new window.Image();
-    eqLogo.src = "/assets/images/eq.png";
+    eqLogo.src = "/assets/eq.png";
   }, []);
 
   // Add new state for quality management
@@ -800,7 +802,7 @@ const InterviewPage = () => {
       canvas.height = 720;
 
       const watermark = document.createElement("img");
-      watermark.src = "/assets/images/eq.png";
+      watermark.src = "/assets/eq.png";
       watermarkRef.current = watermark;
 
       // Create audio context and destination if not exists
@@ -972,14 +974,14 @@ const InterviewPage = () => {
       setError("");
       setShowQuestion(false);
 
-      const initialQuestion = `Hi ${interview?.fullName ?? ""}, welcome to the interview. Could you please introduce yourself and tell us about your background?`;
+      const initialQuestion = `Hi ${interview?.name ?? ""}, welcome to the interview. Could you please introduce yourself and tell us about your background?`;
 
       const audioResponse = await new Promise<AudioResponse>(
         (resolve, reject) => {
           getAudioMutation.mutate(
             {
               text: initialQuestion,
-              fullName: interview?.fullName ?? "",
+              fullName: interview?.name ?? "",
             },
             {
               onSuccess: (data) => resolve(data as AudioResponse),
@@ -1063,7 +1065,7 @@ const InterviewPage = () => {
       setInterviewStatus("waiting");
     }
   }, [
-    interview?.fullName,
+    interview?.name,
     startRecording,
     startAudioRecording,
     getAudioMutation,
@@ -1130,7 +1132,6 @@ const InterviewPage = () => {
           description: "Your interview has been recorded and submitted.",
           duration: 2000,
         });
-        router.push(`/student/profile/${id as string}`);
       },
       onError: (error) => {
         toast({
@@ -1188,21 +1189,30 @@ const InterviewPage = () => {
   const { uploadInterview, uploading } = useInterviewUpload((url) => {
     console.log("End stage: Here is the URL : ", url);
     submitInterview({
-      interviewId: interviewid as string,
+      interviewId: jobid as string,
       userId: id as string,
       phoneNumber: interview?.phoneNumber ?? "",
       sessionId: session as string,
       collegeName: interview?.collegeName ?? "",
       yearOfPassing: interview?.yearOfPassing ?? "",
-      rollno: interview?.rollno ?? "",
-      stream: interview?.stream ?? "",
+      // rollno: interview?.rollno ?? "",
+      // stream: interview?.stream ?? "",
       videoUrl: url,
       email: interview?.email ?? "",
-      fullName: interview?.fullName ?? "",
+      fullName: interview?.name ?? "",
       previousQuestions: previousQuestions ?? [],
       JD_text: JD_text ?? "",
       resumeText: resumeText ?? "",
       JD_topics: JD_topics ?? [],
+      resume: resumeSummary ?? "",
+      degree: interview?.degree ?? "",
+      technicalSkills: "",
+      languages: "",
+      jobTitle: "",
+      jobDescription: "",
+      jobLocation: "",
+      companyName: "",
+      skillsRequired: []
     });
   });
 
@@ -1306,7 +1316,7 @@ const InterviewPage = () => {
         audio: "", // Empty audio
         currentQuestion,
         questionCount: questionCount + 1,
-        fullName: interview?.fullName ?? "",
+        fullName: interview?.name ?? "",
         primarySpecialization: interview?.primarySpecialization ?? "",
         silenceDuration: 0,
         isNoResponse: true, // Add this flag
@@ -1341,7 +1351,7 @@ const InterviewPage = () => {
         audio: base64Data,
         currentQuestion,
         questionCount: questionCount + 1,
-        fullName: interview?.fullName ?? "",
+        fullName: interview?.name ?? "",
         primarySpecialization: interview?.primarySpecialization ?? "",
         silenceDuration: 0,
         isNoResponse: false, // Add this flag
@@ -1460,7 +1470,7 @@ const InterviewPage = () => {
         topic: currentTopic,
         JD_topics,
         questionCount,
-        fullName: interview?.fullName ?? "",
+        fullName: interview?.name ?? "",
         primarySpecialization: interview?.primarySpecialization ?? "",
         isNoResponse: false,
         silenceDuration: 0,
@@ -1750,7 +1760,7 @@ const InterviewPage = () => {
     //   sessionId: session as string,
 
     // });
-  }, [cleanupMediaStreams, id, interviewid, session, updateViolation]);
+  }, [cleanupMediaStreams, id, jobid, session, updateViolation]);
 
   {
     interviewStatus === "recording" && !isAudioPlaying && timeRemaining > 0 && (
@@ -1906,18 +1916,18 @@ const InterviewPage = () => {
       description:
         "Your session has timed out. Please login again to continue.",
     });
-    window.location.href = "/login";
+    window.location.href = "/";
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-[#f2f1f6] p-6">
+    <div className="flex items-center justify-center bg-[#f2f1f6] p-6">
       {!hasConsent ? (
         <div className="w-full max-w-6xl rounded-3xl bg-white p-4 shadow-lg md:p-6">
           {/* Top Section with Logo */}
           <div className="mb-4 grid grid-cols-1 gap-4 md:mb-6 md:grid-cols-2 md:gap-6">
             <div className="relative h-[120px] w-full overflow-hidden rounded-2xl bg-red-500 md:h-[200px]">
               <Image
-                src="/assets/images/eq.png"
+                src="/assets/eq.png"
                 alt="Virtual Interview Logo"
                 fill
                 className="m-0 h-full w-full object-cover p-0"
@@ -2066,14 +2076,14 @@ const InterviewPage = () => {
                   {(idVerificationStatus === "prompt" ||
                     (idVerificationStatus === "failed" &&
                       idCheckVideoRef.current)) && (
-                    <video
-                      ref={idCheckVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="h-full w-full object-cover"
-                    />
-                  )}
+                      <video
+                        ref={idCheckVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="h-full w-full object-cover"
+                      />
+                    )}
 
                   {idVerificationStatus === "prompt" && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 bg-black/60 p-4 text-center backdrop-blur-sm">
@@ -2092,33 +2102,33 @@ const InterviewPage = () => {
 
                   {(idVerificationStatus === "capturing" ||
                     idVerificationStatus === "verifying") && (
-                    <div className="flex h-full w-full flex-col items-center justify-center bg-gray-800 p-4 text-white">
-                      {idVerificationStatus === "verifying" &&
-                        idFaceCompositeImage && (
-                          <Image
-                            src={idFaceCompositeImage}
-                            alt="Captured Face"
-                            width={160}
-                            height={120}
-                            className="mb-3 rounded-lg border-2 border-indigo-400 object-contain"
-                          />
-                        )}
-                      <div className="flex items-center space-x-2">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                        <span className="text-sm font-medium">
-                          {idVerificationStatus === "capturing"
-                            ? "Capturing Image..."
-                            : "Verifying Image... Please Wait"}
-                        </span>
+                      <div className="flex h-full w-full flex-col items-center justify-center bg-gray-800 p-4 text-white">
+                        {idVerificationStatus === "verifying" &&
+                          idFaceCompositeImage && (
+                            <Image
+                              src={idFaceCompositeImage}
+                              alt="Captured Face"
+                              width={160}
+                              height={120}
+                              className="mb-3 rounded-lg border-2 border-indigo-400 object-contain"
+                            />
+                          )}
+                        <div className="flex items-center space-x-2">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                          <span className="text-sm font-medium">
+                            {idVerificationStatus === "capturing"
+                              ? "Capturing Image..."
+                              : "Verifying Image... Please Wait"}
+                          </span>
+                        </div>
+                        {idVerificationStatus === "verifying" &&
+                          verificationMessage && (
+                            <p className="mt-2 text-xs text-indigo-300">
+                              {verificationMessage}
+                            </p>
+                          )}
                       </div>
-                      {idVerificationStatus === "verifying" &&
-                        verificationMessage && (
-                          <p className="mt-2 text-xs text-indigo-300">
-                            {verificationMessage}
-                          </p>
-                        )}
-                    </div>
-                  )}
+                    )}
 
                   {idVerificationStatus === "success" && (
                     <div className="flex h-full w-full flex-col items-center justify-center space-y-2 bg-green-50 p-4 text-center">
@@ -2149,7 +2159,7 @@ const InterviewPage = () => {
 
                   {idVerificationStatus === "failed" &&
                     (idCheckVideoRef.current &&
-                    idCheckVideoRef.current.srcObject === mediaStream ? (
+                      idCheckVideoRef.current.srcObject === mediaStream ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 bg-black/60 p-4 text-center backdrop-blur-sm">
                         {idFaceCompositeImage && (
                           <Image
@@ -2245,7 +2255,7 @@ const InterviewPage = () => {
                     <div>
                       <p className="text-xs font-medium text-gray-500">Name</p>
                       <p className="text-xs font-semibold text-gray-800">
-                        {interview?.fullName}
+                        {interview?.name}
                       </p>
                     </div>
                   </div>
@@ -2431,11 +2441,10 @@ const InterviewPage = () => {
                                 }
                               }
                             }}
-                            className={`flex items-center space-x-2 rounded-md px-3 py-2 text-xs font-medium transition-all ${
-                              isTestingMic
-                                ? "bg-red-100 text-red-600 hover:bg-red-200"
-                                : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
-                            }`}
+                            className={`flex items-center space-x-2 rounded-md px-3 py-2 text-xs font-medium transition-all ${isTestingMic
+                              ? "bg-red-100 text-red-600 hover:bg-red-200"
+                              : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                              }`}
                           >
                             {isTestingMic ? (
                               <>
@@ -2498,17 +2507,16 @@ const InterviewPage = () => {
                     <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3">
                       <div className="flex items-center space-x-2">
                         <div
-                          className={`h-2 w-2 rounded-full ${
-                            networkSpeed === "checking"
-                              ? "animate-pulse bg-yellow-500"
-                              : networkSpeed === "good"
-                                ? "bg-green-500"
-                                : networkSpeed === "moderate"
-                                  ? "bg-yellow-500"
-                                  : networkSpeed === "poor"
-                                    ? "bg-red-500"
-                                    : "bg-gray-300"
-                          }`}
+                          className={`h-2 w-2 rounded-full ${networkSpeed === "checking"
+                            ? "animate-pulse bg-yellow-500"
+                            : networkSpeed === "good"
+                              ? "bg-green-500"
+                              : networkSpeed === "moderate"
+                                ? "bg-yellow-500"
+                                : networkSpeed === "poor"
+                                  ? "bg-red-500"
+                                  : "bg-gray-300"
+                            }`}
                         />
                         <span className="text-xs text-gray-600">
                           {networkSpeed === "checking"
@@ -2525,11 +2533,10 @@ const InterviewPage = () => {
                       <button
                         onClick={checkNetworkSpeed}
                         disabled={networkSpeed === "checking"}
-                        className={`rounded-md px-3 py-1 text-xs font-medium ${
-                          networkSpeed === "checking"
-                            ? "bg-gray-100 text-gray-400"
-                            : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
-                        }`}
+                        className={`rounded-md px-3 py-1 text-xs font-medium ${networkSpeed === "checking"
+                          ? "bg-gray-100 text-gray-400"
+                          : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                          }`}
                       >
                         {networkSpeed === "checking"
                           ? "Testing..."
@@ -2632,7 +2639,7 @@ const InterviewPage = () => {
                     mediaStream
                       ? "bg-indigo-600 hover:bg-indigo-700"
                       : "cursor-not-allowed bg-gray-400"
-                  }`}
+                    }`}
                 >
                   Let&apos;s get started!
                 </button>
@@ -2642,7 +2649,7 @@ const InterviewPage = () => {
         </div>
       ) : (
         // Existing interview UI
-        <div className="interview-container w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm">
+        <div className="w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm">
           {/* Timer Bar */}
           <div className="mb-6 flex items-center justify-between rounded-lg bg-gray-50 p-3">
             <div className="flex items-center space-x-4">
@@ -2669,7 +2676,7 @@ const InterviewPage = () => {
             )}
           </div>
 
-          <div className="grid h-[600px] grid-cols-[1fr,1.2fr] gap-8">
+          <div className="grid grid-cols-[1fr,1.2fr] gap-8">
             {/* Left Column - Interviewer & Question - Static height container */}
             <div className="relative flex h-full flex-col rounded-2xl bg-[#eff0fd] p-4">
               {/* Interviewer Interface */}
@@ -2677,12 +2684,11 @@ const InterviewPage = () => {
                 <div className="relative h-[220px] w-full overflow-hidden bg-[#111]">
                   <div className="relative h-full w-full">
                     <Image
-                      src="/assets/images/eq.png"
+                      src="/assets/eq.png"
                       alt="EQ Animated Logo"
                       fill
-                      className={`h-full w-full object-cover ${
-                        isAudioPlaying ? "animate-fast-pulse" : ""
-                      }`}
+                      className={`h-full w-full object-cover ${isAudioPlaying ? "animate-fast-pulse" : ""
+                        }`}
                     />
                   </div>
 
@@ -2737,7 +2743,7 @@ const InterviewPage = () => {
             </div>
 
             {/* Right Column - User Video - Static height container */}
-            <div className="relative flex h-full flex-col">
+            <div className="relative flex h-[400px]  flex-col">
               <div className="relative flex-1 overflow-hidden rounded-2xl bg-gray-100">
                 {/* Timer Display */}
                 {interviewStatus === "recording" &&
@@ -2778,12 +2784,11 @@ const InterviewPage = () => {
                   autoPlay
                   playsInline
                   muted
-                  className={`h-full w-full object-cover ${
-                    idVerificationStatus === "prompt" ||
+                  className={`h-full w-full object-cover ${idVerificationStatus === "prompt" ||
                     idVerificationStatus === "failed"
-                      ? "block"
-                      : "hidden"
-                  }`}
+                    ? "block"
+                    : "hidden"
+                    }`}
                 />
 
                 {/* For lip syncing */}
@@ -2885,7 +2890,7 @@ const InterviewPage = () => {
               process.
             </p>
             <div className="flex space-x-4">
-              {}
+              { }
               <button
                 onClick={handleSubmitInterview}
                 disabled={uploading}
@@ -2929,3 +2934,6 @@ const InterviewPage = () => {
 };
 
 export default InterviewPage;
+
+
+
