@@ -21,7 +21,7 @@ const deepgram = createClient(env.DEEPGRAM_API_KEY);
 const config = new Configuration({ apiKey: env.OPENAI_API_KEY });
 const openai = new OpenAIApi(config);
 
-const MAX_QUESTIONS = 20; // Match Interview 1's limit
+const MAX_QUESTIONS = 5; // Match Interview 1's limit
 const CONVERSATION_END_MARKERS = ["that's all", "that's it", "thank you", "yeah that's it", "so yeah", "that would be all", "that's about it"].map((marker) => marker.toLowerCase());
 
 interface ProcessStreamResponse {

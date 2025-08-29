@@ -8,6 +8,8 @@ import "./src/env.js";
 const config = {
   experimental: {
     serverComponentsExternalPackages: ["@node-rs/argon2", "pdf-parse"],
+    missingSuspenseWithCSRBailout: false,
+    instrumentationHook: true,
   },
 };
 
